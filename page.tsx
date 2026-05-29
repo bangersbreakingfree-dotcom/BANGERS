@@ -1,0 +1,460 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { BillingCycle, planGroups, plans, Tier } from '@/lib/plans';
+
+const heroImage =
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2070&auto=format&fit=crop";
+
+export default function HomePage() {
+  const [tier, setTier] = useState<Tier>('adventurer');
+  const [billing, setBilling] = useState<BillingCycle>('quarterly');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const selectedPlan = useMemo(
+    () => plans.find((plan) => plan.tier === tier && plan.billing === billing)!,
+    [tier, billing]
+  );
+
+  async function subscribe() {
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tier, billing, email })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Checkout failed');
+      }
+
+      window.location.href = data.url;
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Checkout failed');
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="bg-black text-white min-h-screen font-sans overflow-hidden">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/40 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <a href="#" className="text-2xl tracking-[0.35em] font-light">
+            BANGERS
+          </a>
+
+          <nav className="hidden md:flex items-center gap-10 text-sm uppercase tracking-[0.2em] text-neutral-300">
+            <a href="#concept" className="hover:text-white transition">Concept</a>
+            <a href="#membership" className="hover:text-white transition">Membership</a>
+            <a href="#experience" className="hover:text-white transition">Experience</a>
+            <a href="#faq" className="hover:text-white transition">FAQ</a>
+          </nav>
+
+          <a
+            href="#membership"
+            className="border border-white/20 px-5 py-2 rounded-xl hover:bg-white hover:text-black transition"
+          >
+            Join
+          </a>
+        </div>
+      </header>
+
+      <section
+        className="relative min-h-screen flex items-center justify-center px-6"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.88)), url('${heroImage}')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <div className="absolute inset-0 bg-black/20" />
+
+        <div className="relative max-w-6xl text-center pt-24">
+          <p className="uppercase tracking-[0.45em] text-sm text-neutral-300 mb-6">
+            Exclusive Fine Art Photography Club
+          </p>
+
+          <h1 className="text-7xl md:text-[10rem] font-extralight tracking-[0.2em] leading-none mb-8">
+            BANGERS
+          </h1>
+
+          <p className="max-w-3xl mx-auto text-xl md:text-3xl text-neutral-200 leading-relaxed mb-12 font-light">
+            Rare travel photography delivered quarterly.
+            <br />
+            Never posted online. Never sold publicly.
+            <br />
+            Only available to members.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-5 justify-center">
+            <a
+              href="#membership"
+              className="bg-white text-black px-10 py-5 rounded-2xl text-lg font-medium hover:scale-105 transition duration-300 shadow-2xl"
+            >
+              Become a Collector
+            </a>
+
+            <a
+              href="#concept"
+              className="border border-white/30 px-10 py-5 rounded-2xl text-lg hover:bg-white/10 transition duration-300"
+            >
+              What Is A Banger?
+            </a>
+          </div>
+
+          <div className="mt-24 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {[
+              'Quarterly exclusive releases',
+              'No public posts or open sales',
+              'Museum-quality archival printing'
+            ].map((item) => (
+              <div
+                key={item}
+                className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-neutral-200"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="concept" className="py-32 px-6 border-t border-white/10">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-5">
+              What Is A Banger?
+            </p>
+
+            <h2 className="text-5xl md:text-6xl font-extralight mb-10 leading-tight">
+              You know it when you capture one.
+            </h2>
+
+            <div className="space-y-7 text-neutral-300 text-xl leading-relaxed font-light">
+              <p>
+                Some photos are technically good. Some are beautiful. But every once in a while, you capture something different.
+              </p>
+              <p>
+                A true Banger feels rare. It tells a story. It freezes a moment that can never happen again.
+              </p>
+              <p>
+                Every image released through this membership was captured during real travel experiences — mountain storms, alpine lakes, hidden roads, and places most people never see.
+              </p>
+              <p>
+                These photos are never released publicly, never posted on social media, and never sold outside the membership.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-neutral-950 border border-white/10 rounded-[2rem] p-8 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
+            <div className="border border-white/10 rounded-[1.5rem] p-8 bg-black">
+              <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-8">
+                <img
+                  src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1974&auto=format&fit=crop"
+                  alt="Collector print example"
+                  className="w-full h-full object-cover hover:scale-105 transition duration-700"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm uppercase tracking-widest text-neutral-400">
+                  <span>Release Card</span>
+                  <span>Quarterly Drop</span>
+                </div>
+                <h3 className="text-3xl font-extralight">First Light Over Moraine Lake</h3>
+                <p className="text-neutral-400 text-lg">Banff National Park · September 2026</p>
+                <div className="pt-4 border-t border-white/10">
+                  <p className="text-neutral-300 leading-relaxed text-lg font-light">
+                    Captured after hiking before sunrise through freezing rain. The clouds opened for less than two minutes before disappearing completely.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-32 px-6 bg-neutral-950 border-t border-white/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-5">
+              How It Works
+            </p>
+            <h2 className="text-5xl md:text-7xl font-extralight">
+              Simple. Premium. Exclusive.
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              ['01', 'Choose Your Edition', 'Subscribe quarterly or annually and choose the print size that fits your space.'],
+              ['02', 'Receive Exclusive Prints', 'Every quarter you receive a museum-quality fine art print unavailable anywhere else.'],
+              ['03', 'Collect The Story', 'Every release includes a collector card describing where and why the image was captured.']
+            ].map(([number, title, text]) => (
+              <div key={number} className="bg-black border border-white/10 rounded-[2rem] p-10 hover:border-white/20 transition">
+                <p className="text-6xl text-neutral-700 font-extralight mb-10">{number}</p>
+                <h3 className="text-3xl mb-5 font-extralight">{title}</h3>
+                <p className="text-neutral-400 leading-relaxed text-lg font-light">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="membership" className="py-32 px-6 border-t border-white/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-5">
+              Membership Options
+            </p>
+            <h2 className="text-5xl md:text-7xl font-extralight mb-8">
+              Choose Your Edition
+            </h2>
+            <p className="text-neutral-400 max-w-3xl mx-auto text-xl font-light leading-relaxed">
+              Start simple. Scale later. No hard edition limits at launch — every member gets the quarterly BANGER release in their chosen size.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-20">
+            {planGroups.map((group) => (
+              <div
+                key={group.tier}
+                className="border border-white/10 rounded-[2rem] p-10 bg-neutral-950 hover:-translate-y-2 hover:border-white/20 transition duration-300"
+              >
+                <div className="mb-8">
+                  <p className="text-neutral-400 uppercase tracking-widest text-sm mb-4">
+                    {group.size} Fine Art Print
+                  </p>
+                  <h3 className="text-5xl font-extralight mb-4">{group.name}</h3>
+                  <p className="text-neutral-500 text-lg leading-relaxed font-light">
+                    {group.description}
+                  </p>
+                </div>
+
+                <div className="space-y-5 mb-10">
+                  <div className="flex justify-between border-b border-white/10 pb-4 text-lg">
+                    <span className="text-neutral-400">Quarterly</span>
+                    <span>{group.quarterly}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-white/10 pb-4 text-lg">
+                    <span className="text-neutral-400">Annual Discount</span>
+                    <span>{group.annual}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-white/10 pb-4 text-lg">
+                    <span className="text-neutral-400">US Shipping</span>
+                    <span>$9.99</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setTier(group.tier);
+                    document.getElementById('checkout')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full bg-white text-black py-5 rounded-2xl text-lg font-medium hover:scale-[1.02] transition duration-300 shadow-xl"
+                >
+                  Select {group.name}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div id="checkout" className="bg-neutral-950 border border-white/10 rounded-[2rem] p-10 md:p-14 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <p className="uppercase tracking-[0.2em] text-sm text-neutral-500 mb-4">
+                  Subscription Checkout
+                </p>
+                <h3 className="text-4xl font-extralight mb-6">
+                  BANGERS Membership
+                </h3>
+                <div className="space-y-5 text-neutral-300 text-lg leading-relaxed font-light">
+                  <p>
+                    Choose your edition and billing cycle. Stripe securely handles payment, tax, US shipping address, receipts, and recurring billing.
+                  </p>
+                  <div className="space-y-3 pt-4">
+                    {[
+                      'Quarterly exclusive releases',
+                      'Archival museum-quality printing',
+                      'Collector card with location and story',
+                      'Never released publicly',
+                      '$9.99 US shipping'
+                    ].map((item) => (
+                      <div key={item} className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-black border border-white/10 rounded-[2rem] p-8">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm uppercase tracking-[0.2em] text-neutral-500 mb-3">
+                      Select Edition
+                    </label>
+                    <select
+                      value={tier}
+                      onChange={(event) => setTier(event.target.value as Tier)}
+                      className="w-full bg-neutral-950 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-white/30"
+                    >
+                      <option value="explorer">Explorer Edition — 8x10</option>
+                      <option value="adventurer">Adventurer Edition — 14x18</option>
+                      <option value="collector">Collector Edition — 20x24</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm uppercase tracking-[0.2em] text-neutral-500 mb-3">
+                      Billing Frequency
+                    </label>
+                    <select
+                      value={billing}
+                      onChange={(event) => setBilling(event.target.value as BillingCycle)}
+                      className="w-full bg-neutral-950 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-white/30"
+                    >
+                      <option value="quarterly">Quarterly Billing</option>
+                      <option value="annual">Annual Billing — Discounted</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm uppercase tracking-[0.2em] text-neutral-500 mb-3">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="collector@email.com"
+                      className="w-full bg-neutral-950 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/30"
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10">
+                    <div className="flex justify-between text-lg mb-2">
+                      <span className="text-neutral-400">Membership</span>
+                      <span>{selectedPlan.amount} / {selectedPlan.billing === 'quarterly' ? 'quarter' : 'year'}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-neutral-500 mb-2">
+                      <span>{selectedPlan.name}</span>
+                      <span>{selectedPlan.size}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-neutral-500 mb-6">
+                      <span>US Shipping</span>
+                      <span>$9.99 at checkout</span>
+                    </div>
+
+                    <button
+                      onClick={subscribe}
+                      disabled={loading}
+                      className="w-full bg-white text-black py-5 rounded-2xl text-xl font-medium hover:scale-[1.02] transition duration-300 shadow-xl disabled:opacity-50"
+                    >
+                      {loading ? 'Opening Stripe...' : 'Continue to Stripe Checkout'}
+                    </button>
+
+                    <p className="text-center text-neutral-500 text-sm mt-5 leading-relaxed">
+                      Powered securely by Stripe subscriptions. Taxes and shipping are calculated at checkout. US shipping only.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="experience" className="py-32 px-6 bg-neutral-950 border-t border-white/10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+          <div className="space-y-10">
+            <div>
+              <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-5">
+                The Collector Experience
+              </p>
+              <h2 className="text-5xl md:text-7xl font-extralight leading-tight">
+                More than a print.
+              </h2>
+            </div>
+            <div className="space-y-6 text-xl text-neutral-300 leading-relaxed font-light">
+              <p>Every shipment is designed to feel intentional, cinematic, and personal.</p>
+              <p>
+                Prints are produced in-house using archival fine art materials, carefully packaged, and shipped directly from the studio.
+              </p>
+            </div>
+            <div className="space-y-4 text-lg">
+              {[
+                'Museum-quality fine art print',
+                'Collector card with location and story',
+                'US shipping for $9.99',
+                'Exclusive member-only releases',
+                'Premium archival packaging'
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-4 border border-white/10 rounded-2xl px-6 py-5 bg-black">
+                  <div className="w-2 h-2 rounded-full bg-white" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
+            <img
+              src="https://images.unsplash.com/photo-1510798831971-661eb04b3739?q=80&w=1974&auto=format&fit=crop"
+              alt="Premium print packaging"
+              className="w-full h-full object-cover hover:scale-105 transition duration-700"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="py-32 px-6 bg-black border-t border-white/10">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-5">FAQ</p>
+            <h2 className="text-5xl md:text-7xl font-extralight">Common Questions</h2>
+          </div>
+
+          <div className="space-y-6">
+            {[
+              ['Are these photos posted online anywhere else?', 'No. Every image released through BANGERS is exclusive to members and will never be posted publicly or sold elsewhere.'],
+              ['Are the prints limited?', 'Not at launch. The focus is on building the member base and delivering exclusive quarterly releases. Limited runs can be added later if the brand scales into collectible drops.'],
+              ['What comes with each shipment?', 'Each delivery includes a museum-quality print and a collector card describing where and why the image was captured.'],
+              ['Is shipping included?', 'Shipping is charged separately at checkout. Launch shipping is $9.99 and US only.'],
+              ['Can I cancel my membership?', 'Yes. Memberships can be managed, paused, or canceled through the Stripe Customer Portal once account access is connected.']
+            ].map(([question, answer]) => (
+              <div key={question} className="border border-white/10 rounded-[2rem] p-8 bg-neutral-950">
+                <h3 className="text-2xl font-light mb-4">{question}</h3>
+                <p className="text-neutral-400 text-lg leading-relaxed font-light">{answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-white/10 py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div>
+            <h3 className="text-2xl tracking-[0.35em] font-light mb-2">BANGERS</h3>
+            <p className="text-neutral-500">Exclusive fine art travel photography.</p>
+          </div>
+
+          <div className="flex gap-8 text-neutral-400 uppercase tracking-[0.2em] text-sm">
+            <a href="#membership">Membership</a>
+            <a href="#faq">FAQ</a>
+            <a href="mailto:hello@bangersprints.com">Contact</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+}
